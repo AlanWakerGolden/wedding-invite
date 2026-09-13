@@ -1501,6 +1501,8 @@
     "天泽厅见 不见不散","百年好合 千年修得共枕眠","一拜天地 二拜高堂 三拜你们真般配"];
   var COLORS=["#a63d40","#b8924a","#8a5a44","#7d5ba6","#3d7a6a"];
   var resIdx=0;                // 常驻弹幕顺序游标（保证100条轮着出现）
+  var cloudIdx=0;              // 云端祝福顺序游标（整体轮回，不随机重复）
+  var turn=0;                  // 发射轮次计数（用于穿插云端祝福）
   var layer=document.getElementById('dm-layer');
 
   // 云端状态
@@ -1538,9 +1540,11 @@
 
   var started=false;
   function nextText(){
-    // 优先循环云端真祝福（宾客刚发的），否则按顺序轮播100条常驻网友祝福
-    if(cloudWishes.length&&Math.random()<0.55){
-      var w=cloudWishes[Math.floor(Math.random()*cloudWishes.length)];
+    // 每 5 发插 1 条云端真祝福（顺序轮回），其余按顺序轮播 100 条常驻祝福
+    // 两个池各自顺序推进：一轮内每条只出现一次，不随机、不重复刷屏
+    turn++;
+    if(cloudWishes.length && turn%5===0){
+      var w=cloudWishes[cloudIdx%cloudWishes.length];cloudIdx++;
       return w.t;
     }
     var r=RESIDENT[resIdx%RESIDENT.length];resIdx++;
@@ -1549,7 +1553,7 @@
   function start(){
     if(started)return;started=true;
     spawn('张亿 & 郭艳华 · 新婚快乐',true);
-    setInterval(function(){spawn(nextText());},3200);
+    setInterval(function(){spawn(nextText());},1600);
   }
 
   // 拉取云端祝福：新祝福立即飘过（大字），并加入本地池
